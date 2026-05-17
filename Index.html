@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Make a Wish 🎂</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #2b2d42, #1f2937);
+  font-family: Arial;
+  overflow: hidden;
+  color: white;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* MAIN SCENE (TEXT + CAKE TOGETHER) */
+.scene {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+/* TEXT NOW CENTERED WITH CAKE */
+h1 {
+  margin: 0;
+  font-size: 30px;
+}
+
+p {
+  margin: 0;
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+/* CAKE */
+.cake {
+  width: 380px;
+  height: 240px;
+  background: #000;
+  border-radius: 25px;
+  position: relative;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+}
+
+/* FROSTING */
+.cake::before {
+  content: "";
+  position: absolute;
+  top: -30px;
+  left: 15px;
+  right: 15px;
+  height: 65px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+/* CANDLES */
+.candle {
+  width: 10px;
+  height: 80px;
+  background: #fff;
+  position: absolute;
+  top: -90px;
+  border-radius: 4px;
+}
+
+.c1 { left: 95px; }
+.c2 { left: 180px; }
+.c3 { left: 265px; }
+
+/* FLAME */
+.flame {
+  width: 12px;
+  height: 12px;
+  background: orange;
+  border-radius: 50%;
+  position: absolute;
+  top: -15px;
+  left: -1px;
+  box-shadow: 0 0 15px orange;
+}
+
+/* BALLOONS */
+.balloon {
+  position: absolute;
+  width: 18px;
+  height: 26px;
+  border-radius: 50%;
+  bottom: -100px;
+  animation: float 10s linear infinite;
+  opacity: 0.6;
+  z-index: 1;
+}
+
+@keyframes float {
+  to {
+    transform: translateY(-120vh);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- SCENE (TEXT + CAKE GROUPED) -->
+<div class="scene">
+
+  <h1>🎉 Make a Wish 🎉</h1>
+  <p>Blow into your mic to blow the candles 💨</p>
+
+  <div class="cake">
+
+    <div class="candle c1"><div class="flame"></div></div>
+    <div class="candle c2"><div class="flame"></div></div>
+    <div class="candle c3"><div class="flame"></div></div>
+
+  </div>
+
+</div>
+
+<script>
+
+let flames = document.querySelectorAll(".flame");
+
+/* MIC BLOW */
+navigator.mediaDevices.getUserMedia({ audio: true })
+.then(stream => {
+  const audioCtx = new AudioContext();
+  const mic = audioCtx.createMediaStreamSource(stream);
+  const analyser = audioCtx.createAnalyser();
+
+  mic.connect(analyser);
+
+  const data = new Uint8Array(analyser.frequencyBinCount);
+
+  function detect() {
+    analyser.getByteFrequencyData(data);
+
+    let volume = data.reduce((a,b)=>a+b) / data.length;
+
+    if (volume > 25) {
+      flames.forEach(f => f.style.opacity = "0");
+    }
+
+    requestAnimationFrame(detect);
+  }
+
+  detect();
+});
+
+/* BALLOONS */
+for (let i = 0; i < 20; i++) {
+  let b = document.createElement("div");
+  b.className = "balloon";
+  b.style.left = Math.random() * 100 + "%";
+  b.style.background = ["#ffffff","#aab","#889","#667"][i % 4];
+  b.style.animationDuration = (6 + Math.random() * 6) + "s";
+  document.body.appendChild(b);
+}
+
+</script>
+
+</body>
+</html>
